@@ -1,0 +1,34 @@
+
+.title {
+  font-size: 30px;
+  
+}
+.tabela-header-1 {
+  background-color: #BB86FC;
+}
+
+.tabela-header-2 {
+  background-color: #00C4B4;
+}
+
+.dados {
+  background-color: #424250;
+}
+
+.tabela-moda-casa {
+  text-align: center;
+  color: azure;
+  width: 50%;
+  padding: 10px;
+  font-size: 20px;
+  border: #424250;
+
+}
+
+.corpo {
+  background-color: #B0D4DE;
+}
+
+.fundo {
+  background-color: #A9A9A9;
+}
