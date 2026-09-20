@@ -32,6 +32,22 @@ Aba principal **Gastos Mensais** com cálculo ao vivo (planejado vs realizado), 
 ```bash
 git clone https://github.com/DenisPaulo/aula-tabela.git
 cd aula-tabela
+```
+
+Opções pra abrir:
+
+1. **Mais simples:** abra o `index.html` no navegador (duplo clique).
+2. **Com servidor local (Python):**
+
+```bash
+python3 -m http.server 5500
+```
+
+Depois acesse `http://localhost:5500`.
+
+3. **Com Node (se tiver instalado):**
+
+```bash
 npx --yes serve .
 ```
 
