@@ -22,13 +22,9 @@ Resumo (saldos, entradas, saídas, RDB) + lista de movimentações com filtro po
 
 ## Como abrir
 
-- Duplo clique **não** carrega o JSON (`fetch`). Use a **Pages** ou:
-
-```bash
-python -m http.server 5500
-```
-
-(Windows: instale Python ou abra só pela Pages.)
+1. **Mais simples:** duplo clique no `index.html` (dados embutidos no JS).
+2. **Online:** [denispaulo.github.io/aula-tabela](https://denispaulo.github.io/aula-tabela/)
+3. **Opcional — servidor local:** `python -m http.server 5500`
 
 ## Privacidade
 
