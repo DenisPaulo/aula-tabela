@@ -107,8 +107,16 @@ function render() {
 
     category.addEventListener('change', () => { row.category = category.value; persistAndRefresh(); });
     description.addEventListener('input', () => { row.description = description.value; saveState(); });
-    plannedInput.addEventListener('input', () => { row.planned = Number(plannedInput.value) || 0; persistAndRefresh(); });
-    actualInput.addEventListener('input', () => { row.actual = Number(actualInput.value) || 0; persistAndRefresh(); });
+    plannedInput.addEventListener('input', () => {
+      row.planned = Number(plannedInput.value) || 0;
+      saveState();
+      refreshTotalsAndRow(tr, row);
+    });
+    actualInput.addEventListener('input', () => {
+      row.actual = Number(actualInput.value) || 0;
+      saveState();
+      refreshTotalsAndRow(tr, row);
+    });
     tr.querySelector('.remove').addEventListener('click', () => {
       currentRows().splice(index, 1);
       persistAndRefresh();
@@ -126,6 +134,41 @@ function render() {
   const usage = plannedTotal > 0 ? Math.min((actualTotal / plannedTotal) * 100, 100) : 0;
   els.budgetPct.textContent = `${usage.toFixed(0)}%`;
   els.budgetFill.style.width = `${usage}%`;
+}
+
+
+function refreshTotalsAndRow(tr, row) {
+  const rows = currentRows();
+  const plannedTotal = rows.reduce((s, r) => s + (Number(r.planned) || 0), 0);
+  const actualTotal = rows.reduce((s, r) => s + (Number(r.actual) || 0), 0);
+  const planned = Number(row.planned) || 0;
+  const actual = Number(row.actual) || 0;
+  const diff = planned - actual;
+  const diffClass = diff >= 0 ? 'diff-ok' : Math.abs(diff) <= planned * 0.1 ? 'diff-warn' : 'diff-danger';
+  const sign = diff > 0 ? '+' : '';
+  tr.querySelector('.diff-cell').innerHTML = `<span class="${diffClass}">${sign}${money.format(diff)}</span>`;
+  const pct = plannedTotal > 0 ? (actual / plannedTotal) * 100 : 0;
+  tr.querySelector('.pct-cell').textContent = `${pct.toFixed(1)}%`;
+  const st = statusFor(planned, actual);
+  tr.querySelector('.status-cell').innerHTML = `<span class="status-pill status-${st.key}"><span aria-hidden="true">${st.icon}</span>${st.label}</span>`;
+
+  const saldo = plannedTotal - actualTotal;
+  els.totalPlanejado.textContent = money.format(plannedTotal);
+  els.totalRealizado.textContent = money.format(actualTotal);
+  els.saldoMes.textContent = money.format(saldo);
+  els.saldoMes.className = saldo >= 0 ? 'diff-ok' : 'diff-danger';
+  const usage = plannedTotal > 0 ? Math.min((actualTotal / plannedTotal) * 100, 100) : 0;
+  els.budgetPct.textContent = `${usage.toFixed(0)}%`;
+  els.budgetFill.style.width = `${usage}%`;
+
+  // keep % columns coherent for all rows without rebuilding inputs
+  [...els.body.querySelectorAll('tr')].forEach((rowEl, i) => {
+    const r = rows[i];
+    if (!r) return;
+    const a = Number(r.actual) || 0;
+    const p = plannedTotal > 0 ? (a / plannedTotal) * 100 : 0;
+    rowEl.querySelector('.pct-cell').textContent = `${p.toFixed(1)}%`;
+  });
 }
 
 function persistAndRefresh() {
