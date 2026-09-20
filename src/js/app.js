@@ -1,223 +1,23 @@
-const STORAGE_KEY = 'aula-tabela-gastos-v1';
-const CATEGORIES = ['Moradia', 'Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
-
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const pct = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 1 });
 
-const els = {
-  monthPicker: document.getElementById('monthPicker'),
-  body: document.getElementById('expenseBody'),
-  empty: document.getElementById('emptyState'),
-  table: document.getElementById('expenseTable'),
-  totalPlanejado: document.getElementById('totalPlanejado'),
-  totalRealizado: document.getElementById('totalRealizado'),
-  saldoMes: document.getElementById('saldoMes'),
-  budgetPct: document.getElementById('budgetPct'),
-  budgetFill: document.getElementById('budgetFill'),
-  rowTemplate: document.getElementById('rowTemplate'),
-};
+let data = null;
 
-let state = loadState();
-
-function defaultMonth() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function sampleRows() {
-  return [
-    { category: 'Moradia', description: 'Aluguel', planned: 1800, actual: 1800 },
-    { category: 'Alimentação', description: 'Mercado', planned: 900, actual: 1040 },
-    { category: 'Transporte', description: 'Combustível / app', planned: 450, actual: 390 },
-    { category: 'Lazer', description: 'Streaming + lazer', planned: 200, actual: 260 },
-  ];
-}
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const month = defaultMonth();
-      return { month, rowsByMonth: { [month]: sampleRows() } };
-    }
-    return JSON.parse(raw);
-  } catch {
-    const month = defaultMonth();
-    return { month, rowsByMonth: { [month]: sampleRows() } };
-  }
-}
-
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function currentRows() {
-  if (!state.rowsByMonth[state.month]) state.rowsByMonth[state.month] = [];
-  return state.rowsByMonth[state.month];
-}
-
-function statusFor(planned, actual) {
-  if (planned <= 0 && actual <= 0) return { key: 'ok', label: 'Sem valor', icon: '○' };
-  if (actual <= planned) return { key: 'ok', label: 'No azul', icon: '✓' };
-  if (actual <= planned * 1.1) return { key: 'warn', label: 'Atenção', icon: '!' };
-  return { key: 'danger', label: 'Acima', icon: '↑' };
-}
-
-function render() {
-  const rows = currentRows();
-  els.body.innerHTML = '';
-  const hasRows = rows.length > 0;
-  els.empty.hidden = hasRows;
-  els.table.hidden = !hasRows;
-
-  let plannedTotal = 0;
-  let actualTotal = 0;
-
-  plannedTotal = rows.reduce((s, r) => s + (Number(r.planned) || 0), 0);
-  actualTotal = rows.reduce((s, r) => s + (Number(r.actual) || 0), 0);
-
-  rows.forEach((row, index) => {
-    const planned = Number(row.planned) || 0;
-    const actual = Number(row.actual) || 0;
-
-    const tr = els.rowTemplate.content.firstElementChild.cloneNode(true);
-    const category = tr.querySelector('.category');
-    const description = tr.querySelector('.description');
-    const plannedInput = tr.querySelector('.planned');
-    const actualInput = tr.querySelector('.actual');
-    const diffCell = tr.querySelector('.diff-cell');
-    const pctCell = tr.querySelector('.pct-cell');
-    const statusCell = tr.querySelector('.status-cell');
-
-    category.innerHTML = CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('');
-    category.value = row.category || 'Outros';
-    description.value = row.description || '';
-    plannedInput.value = planned || '';
-    actualInput.value = actual || '';
-
-    const diff = planned - actual;
-    const diffClass = diff >= 0 ? 'diff-ok' : Math.abs(diff) <= planned * 0.1 ? 'diff-warn' : 'diff-danger';
-    const sign = diff > 0 ? '+' : '';
-    diffCell.innerHTML = `<span class="${diffClass}">${sign}${money.format(diff)}</span>`;
-
-    const pct = plannedTotal > 0 ? (actual / plannedTotal) * 100 : 0;
-    pctCell.textContent = `${pct.toFixed(1)}%`;
-
-    const st = statusFor(planned, actual);
-    statusCell.innerHTML = `<span class="status-pill status-${st.key}"><span aria-hidden="true">${st.icon}</span>${st.label}</span>`;
-
-    category.addEventListener('change', () => { row.category = category.value; persistAndRefresh(); });
-    description.addEventListener('input', () => { row.description = description.value; saveState(); });
-    plannedInput.addEventListener('input', () => {
-      row.planned = Number(plannedInput.value) || 0;
-      saveState();
-      refreshTotalsAndRow(tr, row);
-    });
-    actualInput.addEventListener('input', () => {
-      row.actual = Number(actualInput.value) || 0;
-      saveState();
-      refreshTotalsAndRow(tr, row);
-    });
-    tr.querySelector('.remove').addEventListener('click', () => {
-      currentRows().splice(index, 1);
-      persistAndRefresh();
-    });
-
-    els.body.appendChild(tr);
-  });
-
-  const saldo = plannedTotal - actualTotal;
-  els.totalPlanejado.textContent = money.format(plannedTotal);
-  els.totalRealizado.textContent = money.format(actualTotal);
-  els.saldoMes.textContent = money.format(saldo);
-  els.saldoMes.className = saldo >= 0 ? 'diff-ok' : 'diff-danger';
-
-  const usage = plannedTotal > 0 ? Math.min((actualTotal / plannedTotal) * 100, 100) : 0;
-  els.budgetPct.textContent = `${usage.toFixed(0)}%`;
-  els.budgetFill.style.width = `${usage}%`;
-}
-
-
-function refreshTotalsAndRow(tr, row) {
-  const rows = currentRows();
-  const plannedTotal = rows.reduce((s, r) => s + (Number(r.planned) || 0), 0);
-  const actualTotal = rows.reduce((s, r) => s + (Number(r.actual) || 0), 0);
-  const planned = Number(row.planned) || 0;
-  const actual = Number(row.actual) || 0;
-  const diff = planned - actual;
-  const diffClass = diff >= 0 ? 'diff-ok' : Math.abs(diff) <= planned * 0.1 ? 'diff-warn' : 'diff-danger';
-  const sign = diff > 0 ? '+' : '';
-  tr.querySelector('.diff-cell').innerHTML = `<span class="${diffClass}">${sign}${money.format(diff)}</span>`;
-  const pct = plannedTotal > 0 ? (actual / plannedTotal) * 100 : 0;
-  tr.querySelector('.pct-cell').textContent = `${pct.toFixed(1)}%`;
-  const st = statusFor(planned, actual);
-  tr.querySelector('.status-cell').innerHTML = `<span class="status-pill status-${st.key}"><span aria-hidden="true">${st.icon}</span>${st.label}</span>`;
-
-  const saldo = plannedTotal - actualTotal;
-  els.totalPlanejado.textContent = money.format(plannedTotal);
-  els.totalRealizado.textContent = money.format(actualTotal);
-  els.saldoMes.textContent = money.format(saldo);
-  els.saldoMes.className = saldo >= 0 ? 'diff-ok' : 'diff-danger';
-  const usage = plannedTotal > 0 ? Math.min((actualTotal / plannedTotal) * 100, 100) : 0;
-  els.budgetPct.textContent = `${usage.toFixed(0)}%`;
-  els.budgetFill.style.width = `${usage}%`;
-
-  // keep % columns coherent for all rows without rebuilding inputs
-  [...els.body.querySelectorAll('tr')].forEach((rowEl, i) => {
-    const r = rows[i];
-    if (!r) return;
-    const a = Number(r.actual) || 0;
-    const p = plannedTotal > 0 ? (a / plannedTotal) * 100 : 0;
-    rowEl.querySelector('.pct-cell').textContent = `${p.toFixed(1)}%`;
-  });
-}
-
-function persistAndRefresh() {
-  saveState();
-  render();
-}
-
-function addRow() {
-  currentRows().push({ category: 'Outros', description: '', planned: 0, actual: 0 });
-  persistAndRefresh();
-}
-
-function clearMonth() {
-  if (!confirm('Limpar todos os gastos deste mês?')) return;
-  state.rowsByMonth[state.month] = [];
-  persistAndRefresh();
-}
-
-function exportCsv() {
-  const rows = currentRows();
-  const header = ['Mes', 'Categoria', 'Descricao', 'Planejado', 'Realizado', 'Diferenca', 'Status'];
-  const lines = [header.join(';')];
-  rows.forEach((row) => {
-    const planned = Number(row.planned) || 0;
-    const actual = Number(row.actual) || 0;
-    const st = statusFor(planned, actual).label;
-    lines.push([
-      state.month,
-      row.category,
-      `"${(row.description || '').replaceAll('"', '""')}"`,
-      planned.toFixed(2).replace('.', ','),
-      actual.toFixed(2).replace('.', ','),
-      (planned - actual).toFixed(2).replace('.', ','),
-      st,
-    ].join(';'));
-  });
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `gastos-${state.month}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+async function loadData() {
+  const res = await fetch('data/fluxo-agosto-2026.json');
+  data = await res.json();
+  renderResumo();
+  setupFilters();
+  renderMovs();
+  renderHolerite();
 }
 
 function setupTabs() {
   const tabs = document.querySelectorAll('.tab');
   const panels = {
-    gastos: document.getElementById('panel-gastos'),
+    resumo: document.getElementById('panel-resumo'),
+    movs: document.getElementById('panel-movs'),
+    holerite: document.getElementById('panel-holerite'),
     moda: document.getElementById('panel-moda'),
     casa: document.getElementById('panel-casa'),
   };
@@ -225,33 +25,143 @@ function setupTabs() {
     tab.addEventListener('click', () => {
       const id = tab.dataset.tab;
       tabs.forEach((t) => {
-        const active = t === tab;
-        t.classList.toggle('is-active', active);
-        t.setAttribute('aria-selected', active ? 'true' : 'false');
+        const on = t === tab;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
       });
       Object.entries(panels).forEach(([key, panel]) => {
-        const active = key === id;
-        panel.classList.toggle('is-active', active);
-        panel.hidden = !active;
+        const on = key === id;
+        panel.classList.toggle('is-active', on);
+        panel.hidden = !on;
       });
     });
   });
 }
 
-els.monthPicker.value = state.month || defaultMonth();
-state.month = els.monthPicker.value;
-if (!state.rowsByMonth[state.month]) state.rowsByMonth[state.month] = sampleRows();
+function renderResumo() {
+  const r = data.resumo;
+  const cards = [
+    ['Mês', r.mesLabel],
+    ['Saldo inicial', money.format(r.saldoInicial)],
+    ['Saldo final', money.format(r.saldoFinal)],
+    ['Total entradas', money.format(r.totalEntradas)],
+    ['Saídas (consumo)', money.format(r.totalSaidas)],
+    ['Aplicado no RDB', money.format(r.aplicadoRDB)],
+    ['Entradas − consumo', money.format(r.entradasMenosConsumo)],
+    ['Resultado após RDB', money.format(r.resultadoContaAposRDB)],
+  ];
+  document.getElementById('resumoCards').innerHTML = cards.map(([label, value]) => `
+    <article class="stat">
+      <span class="stat-label">${label}</span>
+      <strong>${value}</strong>
+    </article>
+  `).join('');
 
-els.monthPicker.addEventListener('change', () => {
-  state.month = els.monthPicker.value;
-  if (!state.rowsByMonth[state.month]) state.rowsByMonth[state.month] = sampleRows();
-  persistAndRefresh();
-});
+  const totalSaiu = r.tudoQueSaiu || r.saidasPorCategoria.reduce((s, c) => s + c.valor, 0);
+  document.querySelector('#catTable tbody').innerHTML = r.saidasPorCategoria.map((c) => `
+    <tr>
+      <td>${c.categoria}</td>
+      <td>${money.format(c.valor)}</td>
+      <td>${pct.format(totalSaiu ? c.valor / totalSaiu : 0)}</td>
+    </tr>
+  `).join('');
 
-document.getElementById('btnAdd').addEventListener('click', addRow);
-document.getElementById('btnEmptyAdd').addEventListener('click', addRow);
-document.getElementById('btnExport').addEventListener('click', exportCsv);
-document.getElementById('btnClear').addEventListener('click', clearMonth);
+  document.querySelector('#entTable tbody').innerHTML = r.entradasPorTipo.map((e) => `
+    <tr><td>${e.tipo}</td><td>${money.format(e.valor)}</td></tr>
+  `).join('');
+}
+
+function setupFilters() {
+  const cats = [...new Set(data.movimentacoes.map((m) => m.categoria))].sort();
+  const sel = document.getElementById('filterCat');
+  cats.forEach((c) => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  document.getElementById('filterTipo').addEventListener('change', renderMovs);
+  document.getElementById('filterCat').addEventListener('change', renderMovs);
+  document.getElementById('btnExport').addEventListener('click', exportCsv);
+}
+
+function filteredMovs() {
+  const tipo = document.getElementById('filterTipo').value;
+  const cat = document.getElementById('filterCat').value;
+  return data.movimentacoes.filter((m) => {
+    if (tipo !== 'todos' && m.tipo !== tipo) return false;
+    if (cat !== 'todas' && m.categoria !== cat) return false;
+    return true;
+  });
+}
+
+function tipoClass(tipo) {
+  if (tipo === 'Entrada') return 'tipo-entrada';
+  if (tipo === 'Aplicação RDB') return 'tipo-rdb';
+  return 'tipo-saida';
+}
+
+function renderMovs() {
+  const rows = filteredMovs();
+  document.querySelector('#movTable tbody').innerHTML = rows.map((m) => `
+    <tr>
+      <td><span class="badge-tipo ${tipoClass(m.tipo)}">${m.tipo}</span></td>
+      <td>${m.data.split('-').reverse().join('/')}</td>
+      <td>${m.descricao}</td>
+      <td>${m.categoria}</td>
+      <td>${money.format(m.valor)}</td>
+      <td>${m.observacao || '—'}</td>
+    </tr>
+  `).join('');
+  document.getElementById('movCount').textContent = `${rows.length} movimentação(ões)`;
+}
+
+function renderHolerite() {
+  const h = data.holerite;
+  document.getElementById('holeriteCard').innerHTML = `
+    <h2>${h.titulo}</h2>
+    <p class="hint">${h.nota}</p>
+    <div class="summary" style="margin:1rem 0">
+      <article class="stat"><span class="stat-label">Bruto</span><strong>${money.format(h.bruto)}</strong></article>
+      <article class="stat"><span class="stat-label">Descontos</span><strong>${money.format(h.descontos)}</strong></article>
+      <article class="stat"><span class="stat-label">Líquido</span><strong>${money.format(h.liquido)}</strong></article>
+    </div>
+    <div class="grid-2">
+      <div>
+        <h3>Ganhos</h3>
+        <table class="data-table"><thead><tr><th>Descrição</th><th>Valor</th></tr></thead>
+        <tbody>${h.ganhos.map((g) => `<tr><td>${g.descricao}</td><td>${money.format(g.valor)}</td></tr>`).join('')}</tbody></table>
+      </div>
+      <div>
+        <h3>Descontos</h3>
+        <table class="data-table"><thead><tr><th>Descrição</th><th>Valor</th></tr></thead>
+        <tbody>${h.descontosLista.map((g) => `<tr><td>${g.descricao}</td><td>${money.format(g.valor)}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>
+  `;
+}
+
+function exportCsv() {
+  const rows = filteredMovs();
+  const lines = [['Tipo','Data','Descricao','Categoria','Valor','Observacao'].join(';')];
+  rows.forEach((m) => {
+    lines.push([
+      m.tipo,
+      m.data,
+      `"${(m.descricao || '').replaceAll('"','""')}"`,
+      m.categoria,
+      m.valor.toFixed(2).replace('.', ','),
+      `"${(m.observacao || '').replaceAll('"','""')}"`,
+    ].join(';'));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fluxo-${data.resumo.mes}.csv`;
+  a.click();
+}
 
 setupTabs();
-render();
+loadData().catch((err) => {
+  document.body.insertAdjacentHTML('afterbegin', `<p style="color:#f87171;padding:1rem">Erro ao carregar dados: ${err.message}. Abra via Pages ou um servidor local (fetch não roda em file://).</p>`);
+});

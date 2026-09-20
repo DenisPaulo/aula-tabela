@@ -309,3 +309,32 @@ h1 {
   .toolbar-actions { width: 100%; }
   .btn { flex: 1; }
 }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.card h2 { margin: 0 0 0.85rem; font-size: 1.05rem; }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 0.75rem 0 0; }
+.badge-tipo {
+  display: inline-flex;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.tipo-entrada { background: rgba(52,211,153,.12); color: var(--ok); }
+.tipo-saida { background: rgba(248,113,113,.12); color: var(--danger); }
+.tipo-rdb { background: rgba(56,189,248,.12); color: var(--accent); }
+.field select {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+}
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}

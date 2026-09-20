@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Gastos mensais com cálculo ao vivo, status por linha e export CSV — mais demos de tabelas HTML/CSS">
-  <title>Gastos Mensais — Tabelas Estilizadas</title>
+  <meta name="description" content="Fluxo de caixa mensal com resumo, movimentações filtráveis e holerite — HTML/CSS/JS">
+  <title>Fluxo de Caixa — Gastos Mensais</title>
   <link rel="stylesheet" href="src/css/styles.css">
 </head>
 <body>
@@ -12,91 +12,87 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">HTML · CSS · JavaScript</p>
-        <h1>Tabelas Estilizadas</h1>
-        <p class="lede">Aba principal com planilha de gastos mensais — cálculo ao vivo, persistência local e exportação CSV.</p>
+        <h1>Fluxo de Caixa</h1>
+        <p class="lede">Resumo do mês, movimentações com filtro e holerite — dados anonimizados (sem nomes completos nem empresa).</p>
       </div>
       <nav class="tabs" role="tablist" aria-label="Seções">
-        <button class="tab is-active" role="tab" aria-selected="true" data-tab="gastos" id="tab-gastos">Gastos Mensais</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="moda" id="tab-moda">Moda</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="casa" id="tab-casa">Casa</button>
+        <button class="tab is-active" role="tab" data-tab="resumo" aria-selected="true">Resumo</button>
+        <button class="tab" role="tab" data-tab="movs" aria-selected="false">Movimentações</button>
+        <button class="tab" role="tab" data-tab="holerite" aria-selected="false">Holerite</button>
+        <button class="tab" role="tab" data-tab="moda" aria-selected="false">Moda</button>
+        <button class="tab" role="tab" data-tab="casa" aria-selected="false">Casa</button>
       </nav>
     </header>
 
-    <section class="panel is-active" id="panel-gastos" role="tabpanel" aria-labelledby="tab-gastos">
-      <div class="toolbar">
-        <label class="field">
-          <span>Mês de referência</span>
-          <input type="month" id="monthPicker" />
-        </label>
-        <div class="toolbar-actions">
-          <button type="button" class="btn btn-secondary" id="btnAdd">+ Adicionar linha</button>
-          <button type="button" class="btn btn-secondary" id="btnExport">Exportar CSV</button>
-          <button type="button" class="btn btn-ghost" id="btnClear">Limpar mês</button>
-        </div>
-      </div>
-
-      <div class="summary" id="summary">
-        <article class="stat">
-          <span class="stat-label">Planejado</span>
-          <strong id="totalPlanejado">R$&nbsp;0,00</strong>
-        </article>
-        <article class="stat">
-          <span class="stat-label">Realizado</span>
-          <strong id="totalRealizado">R$&nbsp;0,00</strong>
-        </article>
-        <article class="stat">
-          <span class="stat-label">Saldo do mês</span>
-          <strong id="saldoMes">R$&nbsp;0,00</strong>
-        </article>
-        <article class="stat stat-wide">
-          <div class="budget-head">
-            <span class="stat-label">Uso do orçamento</span>
-            <span id="budgetPct">0%</span>
-          </div>
-          <div class="budget-track" aria-hidden="true">
-            <div class="budget-fill" id="budgetFill"></div>
+    <section class="panel is-active" id="panel-resumo">
+      <div class="summary" id="resumoCards"></div>
+      <div class="grid-2">
+        <article class="card">
+          <h2>Saídas por categoria</h2>
+          <div class="table-wrap">
+            <table class="data-table" id="catTable">
+              <thead><tr><th>Categoria</th><th>Valor</th><th>%</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </article>
-      </div>
-
-      <div class="table-card">
-        <div class="table-wrap">
-          <table class="expense-table" id="expenseTable">
-            <thead>
-              <tr>
-                <th scope="col">Categoria</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Planejado (R$)</th>
-                <th scope="col">Realizado (R$)</th>
-                <th scope="col">Diferença</th>
-                <th scope="col">% orçamento</th>
-                <th scope="col">Status</th>
-                <th scope="col"><span class="sr-only">Ações</span></th>
-              </tr>
-            </thead>
-            <tbody id="expenseBody"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="emptyState" hidden>
-          <p>Nenhum gasto neste mês.</p>
-          <p class="empty-hint">Adicione a primeira linha ou importe o seu fluxo mensal.</p>
-          <button type="button" class="btn btn-primary" id="btnEmptyAdd">+ Adicionar linha</button>
-        </div>
+        <article class="card">
+          <h2>Entradas por tipo</h2>
+          <div class="table-wrap">
+            <table class="data-table" id="entTable">
+              <thead><tr><th>Tipo</th><th>Valor</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section class="panel" id="panel-moda" role="tabpanel" aria-labelledby="tab-moda" hidden>
-      <article class="demo-card">
+    <section class="panel" id="panel-movs" hidden>
+      <div class="toolbar">
+        <label class="field">Tipo
+          <select id="filterTipo">
+            <option value="todos">Todos</option>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+            <option value="Aplicação RDB">Aplicação RDB</option>
+          </select>
+        </label>
+        <label class="field">Categoria
+          <select id="filterCat"><option value="todas">Todas</option></select>
+        </label>
+        <button type="button" class="btn btn-secondary" id="btnExport">Exportar CSV</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="expense-table" id="movTable">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Obs.</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="hint" id="movCount"></p>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-holerite" hidden>
+      <article class="card" id="holeriteCard"></article>
+    </section>
+
+    <section class="panel" id="panel-moda" hidden>
+      <article class="card demo-card">
         <h2>Moda</h2>
         <div class="table-wrap">
           <table class="data-table">
-            <thead class="header-moda">
-              <tr>
-                <th scope="col">Produto</th>
-                <th scope="col">Tamanho</th>
-                <th scope="col">Valor</th>
-              </tr>
-            </thead>
+            <thead class="header-moda"><tr><th>Produto</th><th>Tamanho</th><th>Valor</th></tr></thead>
             <tbody>
               <tr><td>Camiseta</td><td>M</td><td>R$&nbsp;49,00</td></tr>
               <tr><td>Tênis</td><td>42</td><td>R$&nbsp;299,00</td></tr>
@@ -106,17 +102,12 @@
       </article>
     </section>
 
-    <section class="panel" id="panel-casa" role="tabpanel" aria-labelledby="tab-casa" hidden>
-      <article class="demo-card">
+    <section class="panel" id="panel-casa" hidden>
+      <article class="card demo-card">
         <h2>Casa</h2>
         <div class="table-wrap">
           <table class="data-table">
-            <thead class="header-casa">
-              <tr>
-                <th scope="col">Produto</th>
-                <th scope="col">Valor</th>
-              </tr>
-            </thead>
+            <thead class="header-casa"><tr><th>Produto</th><th>Valor</th></tr></thead>
             <tbody>
               <tr><td>Sofá</td><td>R$&nbsp;1.200,00</td></tr>
               <tr><td>Televisão</td><td>R$&nbsp;5.000,00</td></tr>
@@ -127,34 +118,10 @@
     </section>
 
     <footer class="footer">
-      <span>Demo local · dados salvos neste navegador</span>
+      <span>Fonte: Fluxo_Caixa (anonimizado)</span>
       <a href="https://github.com/DenisPaulo/aula-tabela">Repositório</a>
     </footer>
   </div>
-
-  <template id="rowTemplate">
-    <tr>
-      <td>
-        <select class="input category" aria-label="Categoria">
-          <option>Moradia</option>
-          <option>Alimentação</option>
-          <option>Transporte</option>
-          <option>Saúde</option>
-          <option>Educação</option>
-          <option>Lazer</option>
-          <option>Outros</option>
-        </select>
-      </td>
-      <td><input class="input description" type="text" placeholder="Ex.: aluguel, mercado…" aria-label="Descrição" /></td>
-      <td><input class="input money planned" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Planejado" /></td>
-      <td><input class="input money actual" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Realizado" /></td>
-      <td class="diff-cell"></td>
-      <td class="pct-cell"></td>
-      <td class="status-cell"></td>
-      <td><button type="button" class="icon-btn remove" aria-label="Remover linha">✕</button></td>
-    </tr>
-  </template>
-
   <script src="src/js/app.js" defer></script>
 </body>
 </html>
