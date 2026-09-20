@@ -1,55 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quest Tabelas</title>
+  <meta name="description" content="Tabelas HTML estilizadas com CSS puro — exercício de HTML e CSS Básico">
+  <title>Tabelas Estilizadas — HTML & CSS</title>
   <link rel="stylesheet" href="styles.css">
-
 </head>
-<body class="corpo">
-  <h1>Tabelas Estilizadas</h1>
-  
-  <div class="fundo">
-  <h2 class="title">Moda</h2>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">HTML & CSS Básico</p>
+      <h1>Tabelas Estilizadas</h1>
+      <p class="subtitle">Layout limpo com cabeçalhos coloridos e tipografia legível — sem framework.</p>
+    </header>
 
-  <Table class="tabela-moda-casa">
-    <tr class="tabela-header-1">
-      <th>Produto</th>
-      <th>Tamanho</th>
-      <th>Valor</th>
-    </tr>
-    <tr class="dados">
-      <td>Camiseta</td>
-      <td>M</td>
-      <td>R$ 49,00</td>
-    </tr>
-    <tr class="dados">
-      <td>Tênis</td>
-      <td>42</td>
-      <td>R$ 5,00</td>
-    </tr>
-  </Table>
-  </div>
+    <section class="card" aria-labelledby="moda-title">
+      <h2 id="moda-title">Moda</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead class="header-moda">
+            <tr>
+              <th scope="col">Produto</th>
+              <th scope="col">Tamanho</th>
+              <th scope="col">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Camiseta</td>
+              <td>M</td>
+              <td>R$&nbsp;49,00</td>
+            </tr>
+            <tr>
+              <td>Tênis</td>
+              <td>42</td>
+              <td>R$&nbsp;299,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <div class="fundo">
-  <h2 class="title">Casa</h2>
-
-  <Table class="tabela-moda-casa">
-    <tr class="tabela-header-2">
-      <th>Produto</th>
-      <th>Valor</th>
-    </tr>
-    <tr class="dados">
-      <td>Sofá</td>
-      <td>R$ 1.200,00</td>
-    </tr>
-    <tr class="dados">
-      <td>Televisão</td>
-      <td>R$ 5.000,00</td>
-    </tr>
-  </Table>  
-  </div>
+    <section class="card" aria-labelledby="casa-title">
+      <h2 id="casa-title">Casa</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead class="header-casa">
+            <tr>
+              <th scope="col">Produto</th>
+              <th scope="col">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sofá</td>
+              <td>R$&nbsp;1.200,00</td>
+            </tr>
+            <tr>
+              <td>Televisão</td>
+              <td>R$&nbsp;5.000,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
