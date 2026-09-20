@@ -338,3 +338,18 @@ h1 {
 @media (max-width: 900px) {
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+.top-actions { margin-bottom: 0.35rem; }
+.file-btn { display: inline-flex; align-items: center; cursor: pointer; }
+.resumo-edit .field { margin: 0; }
+.resumo-edit input {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+.auto-val { font-size: 1.2rem; font-weight: 700; }

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Fluxo de caixa mensal com resumo, movimentações filtráveis e holerite — HTML/CSS/JS">
-  <title>Fluxo de Caixa — Gastos Mensais</title>
+  <meta name="description" content="Fluxo de caixa editável — resumo, movimentações e holerite. Seed de exemplo anonimizado.">
+  <title>Fluxo de Caixa — editável</title>
   <link rel="stylesheet" href="src/css/styles.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
       <div>
         <p class="eyebrow">HTML · CSS · JavaScript</p>
         <h1>Fluxo de Caixa</h1>
-        <p class="lede">Resumo do mês, movimentações com filtro e holerite — dados anonimizados (sem nomes completos nem empresa).</p>
+        <p class="lede">Arquivo como molde: digite o mês, edite as linhas, salve no navegador ou exporte CSV. Agosto é só seed de exemplo (anonimizado).</p>
       </div>
       <nav class="tabs" role="tablist" aria-label="Seções">
         <button class="tab is-active" role="tab" data-tab="resumo" aria-selected="true">Resumo</button>
@@ -23,6 +23,21 @@
         <button class="tab" role="tab" data-tab="casa" aria-selected="false">Casa</button>
       </nav>
     </header>
+
+    <div class="toolbar top-actions">
+      <label class="field">Mês
+        <input type="month" id="monthPicker" />
+      </label>
+      <div class="toolbar-actions">
+        <button type="button" class="btn btn-secondary" id="btnSave">Salvar no navegador</button>
+        <button type="button" class="btn btn-secondary" id="btnExport">Exportar CSV</button>
+        <label class="btn btn-secondary file-btn">Importar JSON
+          <input type="file" id="btnImport" accept="application/json,.json" hidden />
+        </label>
+        <button type="button" class="btn btn-ghost" id="btnReset">Restaurar seed</button>
+      </div>
+    </div>
+    <p class="hint" id="saveHint">Alterações ficam neste navegador até você exportar ou limpar.</p>
 
     <section class="panel is-active" id="panel-resumo">
       <div class="summary" id="resumoCards"></div>
@@ -61,7 +76,7 @@
         <label class="field">Categoria
           <select id="filterCat"><option value="todas">Todas</option></select>
         </label>
-        <button type="button" class="btn btn-secondary" id="btnExport">Exportar CSV</button>
+        <button type="button" class="btn btn-primary" id="btnAdd">+ Linha</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -74,10 +89,15 @@
                 <th>Categoria</th>
                 <th>Valor</th>
                 <th>Obs.</th>
+                <th><span class="sr-only">Ações</span></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+        <div class="empty" id="emptyState" hidden>
+          <p>Nenhuma movimentação.</p>
+          <button type="button" class="btn btn-primary" id="btnEmptyAdd">+ Adicionar linha</button>
         </div>
         <p class="hint" id="movCount"></p>
       </div>
@@ -118,10 +138,29 @@
     </section>
 
     <footer class="footer">
-      <span>Fonte: Fluxo_Caixa (anonimizado)</span>
+      <span>Seed de exemplo anonimizado · edite e salve no navegador</span>
       <a href="https://github.com/DenisPaulo/aula-tabela">Repositório</a>
     </footer>
   </div>
+
+  <template id="movRowTemplate">
+    <tr>
+      <td>
+        <select class="input tipo" aria-label="Tipo">
+          <option>Entrada</option>
+          <option>Saída</option>
+          <option>Aplicação RDB</option>
+        </select>
+      </td>
+      <td><input class="input data" type="date" aria-label="Data" /></td>
+      <td><input class="input descricao" type="text" aria-label="Descrição" /></td>
+      <td><select class="input categoria" aria-label="Categoria"></select></td>
+      <td><input class="input valor" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Valor" /></td>
+      <td><input class="input obs" type="text" aria-label="Observação" /></td>
+      <td><button type="button" class="icon-btn remove" aria-label="Remover">✕</button></td>
+    </tr>
+  </template>
+
   <script src="src/js/app.js" defer></script>
 </body>
 </html>
