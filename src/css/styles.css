@@ -611,3 +611,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .meta-fill.is-hot {
   background: linear-gradient(90deg, #34d399, #fbbf24);
 }
+
+
+/* Table headers readable on dark theme */
+.data-table thead th:not(.header-moda th):not(.header-casa th),
+.expense-table thead th {
+  color: #e2e8f0 !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25) !important;
+}
