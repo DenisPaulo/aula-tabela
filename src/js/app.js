@@ -392,7 +392,7 @@ function simulateInvestment() {
     <article class="stat"><span class="stat-label">Total aportado</span><strong>${money.format(totalAporte)}</strong></article>
     <article class="stat"><span class="stat-label">Juros no período</span><strong>${money.format(juros)}</strong></article>
     <article class="stat"><span class="stat-label">${comIR ? 'Líquido est. (IR 15%)' : 'Líquido = bruto'}</span><strong>${money.format(liquido)}</strong></article>
-    <article class="stat"><span class="stat-label">Saldo p/ R$ 1.000/mês</span><strong>${capital1000 == null ? '—' : money.format(capital1000)}</strong></article>
+    <article class="stat stat-span"><span class="stat-label">Saldo p/ R$ 1.000/mês</span><strong>${capital1000 == null ? '—' : money.format(capital1000)}</strong></article>
   `;
   document.getElementById('invMeta').textContent = mesMeta
     ? `Rendimento mensal passa de R$ 1.000 no mês ${mesMeta}.`
