@@ -7,6 +7,9 @@
 
 Controle de **fluxo de caixa mensal** + **simulação de RDB** em juros compostos — HTML/CSS/JS, sem backend.
 
+Nasceu como exercício de tabela HTML e evoluiu para fluxo de caixa + simulação de RDB.
+
+
 **Demo:** [denispaulo.github.io/aula-tabela](https://denispaulo.github.io/aula-tabela/)
 
 ## Problema
