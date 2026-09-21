@@ -532,3 +532,82 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #cbd5e1;
   font-weight: 600;
 }
+
+
+/* --- Visual pack: Resumo + meta + accents --- */
+.receipt .pill strong,
+.auto-val,
+#resumoCards .auto-val,
+#invCards .stat strong,
+.data-table td:nth-child(2),
+.data-table td:nth-child(3),
+.expense-table .valor,
+.stat strong {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.receipt .pill strong {
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  letter-spacing: -0.02em;
+}
+
+#resumoCards .auto-val {
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  letter-spacing: -0.02em;
+}
+
+/* Force dark inputs even against UA stylesheets */
+#panel-investimento input[type="text"],
+#panel-investimento input[type="number"],
+#filterSearch,
+.expense-table .input,
+.field input,
+.field select {
+  background-color: #0f172a !important;
+  background-image: linear-gradient(180deg, #1e293b, #0f172a) !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #38bdf8;
+}
+
+/* Type accents on movement badges already exist; reinforce row tint */
+.expense-table tr[data-tipo="Entrada"] {
+  box-shadow: inset 3px 0 0 #34d399;
+}
+.expense-table tr[data-tipo="Saída"] {
+  box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.85);
+}
+.expense-table tr[data-tipo="Aplicação RDB"] {
+  box-shadow: inset 3px 0 0 #38bdf8;
+}
+
+.meta-wrap {
+  margin-top: 0.85rem;
+}
+.meta-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.45rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.meta-track {
+  height: 12px;
+  border-radius: 999px;
+  background: #243147;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,0.15);
+}
+.meta-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #34d399);
+  transition: width .25s ease;
+}
+.meta-fill.is-hot {
+  background: linear-gradient(90deg, #34d399, #fbbf24);
+}

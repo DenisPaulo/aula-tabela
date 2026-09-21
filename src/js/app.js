@@ -192,6 +192,7 @@ function renderMovs() {
     const categoria = tr.querySelector('.categoria');
     const valor = tr.querySelector('.valor');
     const obs = tr.querySelector('.obs');
+    tr.dataset.tipo = m.tipo || 'Saída';
     categoria.innerHTML = categoryOptions(m.categoria);
     tipo.value = m.tipo || 'Saída';
     data.value = m.data || '';
@@ -210,7 +211,7 @@ function renderMovs() {
       saveState(true);
       if (recalc) renderResumo();
     };
-    tipo.addEventListener('change', () => sync(true));
+    tipo.addEventListener('change', () => { tr.dataset.tipo = tipo.value; sync(true); });
     categoria.addEventListener('change', () => sync(true));
     data.addEventListener('change', () => sync(false));
     descricao.addEventListener('input', () => sync(false));
@@ -394,9 +395,20 @@ function simulateInvestment() {
     <article class="stat"><span class="stat-label">${comIR ? 'Líquido est. (IR 15%)' : 'Líquido = bruto'}</span><strong>${money.format(liquido)}</strong></article>
     <article class="stat stat-span"><span class="stat-label">Saldo p/ R$ 1.000/mês</span><strong>${capital1000 == null ? '—' : money.format(capital1000)}</strong></article>
   `;
-  document.getElementById('invMeta').textContent = mesMeta
+  const lastYield = rows.length ? rows[rows.length - 1].rendimento : 0;
+  const progress = capital1000 ? Math.min(100, (saldoFinal / capital1000) * 100) : Math.min(100, (lastYield / 1000) * 100);
+  const metaText = mesMeta
     ? `Rendimento mensal passa de R$ 1.000 no mês ${mesMeta}.`
     : `No horizonte de ${meses} meses, o rendimento mensal ainda não chega a R$ 1.000 no ritmo atual.`;
+  document.getElementById('invMeta').innerHTML = `
+    <div class="meta-wrap">
+      <div class="meta-head">
+        <span>${metaText}</span>
+        <strong>${progress.toFixed(0)}% da meta de capital</strong>
+      </div>
+      <div class="meta-track" aria-hidden="true"><div class="meta-fill ${progress >= 100 ? 'is-hot' : ''}" style="width:${progress}%"></div></div>
+    </div>
+  `;
 
   const show = [];
   rows.forEach((row) => {
