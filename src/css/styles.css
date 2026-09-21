@@ -388,3 +388,40 @@ h1 {
 @media (max-width: 640px) {
   .receipt, .form-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Investimento — cards de resultado */
+#invCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+#invCards .stat {
+  min-height: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+#invCards .stat-label {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin-bottom: 0.45rem;
+}
+#invCards .stat strong {
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  line-height: 1.2;
+  word-break: break-word;
+}
+@media (min-width: 1100px) {
+  #invCards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  #invCards {
+    grid-template-columns: 1fr;
+  }
+}
