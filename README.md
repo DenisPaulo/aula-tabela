@@ -1,31 +1,54 @@
-# Fluxo de Caixa — editável
+# Fluxo de Caixa + Investimento
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-Molde de **fluxo de caixa** baseado no Fluxo_Caixa: você digita os valores do mês, edita movimentações e salva no navegador.
-
-**Agosto é seed de exemplo** (anonimizado: sem nomes completos nem empresa). Edite por cima ou importe outro JSON no mesmo formato.
-
-## Resultado
-
-Resumo calculado a partir das movimentações + tabela editável com filtro + holerite de referência + export CSV / import JSON.
+Controle de **fluxo de caixa mensal** + **simulação de RDB** em juros compostos — HTML/CSS/JS, sem backend.
 
 **Demo:** [denispaulo.github.io/aula-tabela](https://denispaulo.github.io/aula-tabela/)
+
+## Problema
+
+Controlar o que entrou, o que foi gasto, o que foi guardado e projetar o saldo da caixinha/RDB no tempo.
+
+## O que o app calcula
+
+- Resumo: Entrou / Gastou / Guardou / Sobrou
+- Totais e breakdown por categoria a partir das movimentações
+- Simulação: `saldo[n] = saldo[n-1] * (1 + taxa) + aporte`
+- Meta: em quantos meses o rendimento mensal passa de R$ 1.000
+- Líquido estimado com IR 15% só sobre o ganho (opcional)
 
 ## Como usar
 
 1. Abra o `index.html` (duplo clique) ou a Pages
-2. Edite saldo inicial e as linhas em **Movimentações**
-3. **Salvar no navegador** guarda o mês neste Chrome/Edge
-4. **Exportar CSV** ou **Importar JSON** para outro mês
-5. **Restaurar seed** volta o exemplo inicial
+2. Edite movimentações; o Resumo recalcula
+3. **Salvar no navegador** · **Exportar CSV** · **Importar CSV/JSON**
+4. Na aba **Investimento**, simule saldo/taxa/aporte/meses
 
-## Privacidade
+> Agosto no seed é **exemplo anonimizado** (sem salário real, sem nomes, sem empresa). CSV real fica só no seu computador.
 
-Seed público sem nomes completos de pessoas e sem nome de empresa. Não publique valores reais de salário no README do perfil.
+## Abas
+
+1. Resumo  
+2. Movimentações (filtro, busca, edição)  
+3. Investimento (projeção RDB)  
+4. Holerite (referência de exemplo)
+
+## Testes manuais rápidos
+
+1. Restaurar seed  
+2. Conferir recibo Entrou / Gastou / Guardou / Sobrou  
+3. Exportar CSV e reimportar sem perder linhas  
+4. Simular 36 meses e exportar projeção  
+
+## Próximos passos
+
+- Vários meses no `localStorage`
+- Aportes em degraus (pós-FIAP)
+- Rename do repositório para `fluxo-caixa`
 
 ## Licença
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Fluxo de caixa editável — resumo, movimentações e holerite. Seed de exemplo anonimizado.">
-  <title>Fluxo de Caixa — editável</title>
+  <meta name="description" content="Fluxo de caixa editável + simulação de RDB em juros compostos">
+  <title>Fluxo de Caixa + Investimento</title>
   <link rel="stylesheet" href="src/css/styles.css">
 </head>
 <body>
@@ -13,14 +13,13 @@
       <div>
         <p class="eyebrow">HTML · CSS · JavaScript</p>
         <h1>Fluxo de Caixa</h1>
-        <p class="lede">Arquivo como molde: digite o mês, edite as linhas, salve no navegador ou exporte CSV. Agosto é só seed de exemplo (anonimizado).</p>
+        <p class="lede">Controle de entradas e saídas do mês + simulação de RDB em juros compostos. Seed público só com valores de exemplo.</p>
       </div>
       <nav class="tabs" role="tablist" aria-label="Seções">
         <button class="tab is-active" role="tab" data-tab="resumo" aria-selected="true">Resumo</button>
         <button class="tab" role="tab" data-tab="movs" aria-selected="false">Movimentações</button>
+        <button class="tab" role="tab" data-tab="investimento" aria-selected="false">Investimento</button>
         <button class="tab" role="tab" data-tab="holerite" aria-selected="false">Holerite</button>
-        <button class="tab" role="tab" data-tab="moda" aria-selected="false">Moda</button>
-        <button class="tab" role="tab" data-tab="casa" aria-selected="false">Casa</button>
       </nav>
     </header>
 
@@ -31,15 +30,16 @@
       <div class="toolbar-actions">
         <button type="button" class="btn btn-secondary" id="btnSave">Salvar no navegador</button>
         <button type="button" class="btn btn-secondary" id="btnExport">Exportar CSV</button>
-        <label class="btn btn-secondary file-btn">Importar JSON
-          <input type="file" id="btnImport" accept="application/json,.json" hidden />
+        <label class="btn btn-secondary file-btn">Importar CSV/JSON
+          <input type="file" id="btnImport" accept=".csv,.json,text/csv,application/json" hidden />
         </label>
         <button type="button" class="btn btn-ghost" id="btnReset">Restaurar seed</button>
       </div>
     </div>
-    <p class="hint" id="saveHint">Alterações ficam neste navegador até você exportar ou limpar.</p>
+    <p class="hint" id="saveHint">Agosto é seed de exemplo. Edite, salve no navegador ou importe outro mês.</p>
 
     <section class="panel is-active" id="panel-resumo">
+      <div class="receipt" id="receipt"></div>
       <div class="summary" id="resumoCards"></div>
       <div class="grid-2">
         <article class="card">
@@ -76,6 +76,9 @@
         <label class="field">Categoria
           <select id="filterCat"><option value="todas">Todas</option></select>
         </label>
+        <label class="field">Busca
+          <input type="search" id="filterSearch" placeholder="Descrição ou obs." />
+        </label>
         <button type="button" class="btn btn-primary" id="btnAdd">+ Linha</button>
       </div>
       <div class="card">
@@ -83,12 +86,7 @@
           <table class="expense-table" id="movTable">
             <thead>
               <tr>
-                <th>Tipo</th>
-                <th>Data</th>
-                <th>Descrição</th>
-                <th>Categoria</th>
-                <th>Valor</th>
-                <th>Obs.</th>
+                <th>Tipo</th><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Obs.</th>
                 <th><span class="sr-only">Ações</span></th>
               </tr>
             </thead>
@@ -103,42 +101,48 @@
       </div>
     </section>
 
+    <section class="panel" id="panel-investimento" hidden>
+      <div class="grid-2">
+        <article class="card">
+          <h2>Simular RDB / Caixinha</h2>
+          <p class="hint warn">Se a Selic cair, o saldo precisa ser maior para gerar o mesmo rendimento.</p>
+          <div class="form-grid">
+            <label class="field">Nome da carteira<input id="invNome" type="text" value="Caixinha RDB" /></label>
+            <label class="field">Saldo atual (R$)<input id="invSaldo" type="number" min="0" step="0.01" value="10000" /></label>
+            <label class="field">Taxa ao mês (%)<input id="invTaxa" type="number" min="0" step="0.01" value="1.10" /></label>
+            <label class="field">Aporte mensal (R$)<input id="invAporte" type="number" min="0" step="0.01" value="1500" /></label>
+            <label class="field">Meses a simular<input id="invMeses" type="number" min="1" max="120" value="36" /></label>
+            <label class="field check"><input id="invIR" type="checkbox" checked /> Estimar IR 15% só sobre o ganho</label>
+          </div>
+          <div class="toolbar-actions" style="margin-top:1rem">
+            <button type="button" class="btn btn-secondary" id="btnUseSaldo">Usar saldo final do Resumo</button>
+            <button type="button" class="btn btn-primary" id="btnSimular">Simular</button>
+            <button type="button" class="btn btn-secondary" id="btnExportProj">Exportar projeção CSV</button>
+          </div>
+        </article>
+        <article class="card" id="invSummary">
+          <h2>Resultado</h2>
+          <div class="summary" id="invCards"></div>
+          <p class="hint" id="invMeta"></p>
+        </article>
+      </div>
+      <article class="card" style="margin-top:1rem">
+        <h2>Projeção mês a mês</h2>
+        <div class="table-wrap">
+          <table class="data-table" id="invTable">
+            <thead><tr><th>Mês</th><th>Aporte</th><th>Rendimento</th><th>Saldo</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
     <section class="panel" id="panel-holerite" hidden>
       <article class="card" id="holeriteCard"></article>
     </section>
 
-    <section class="panel" id="panel-moda" hidden>
-      <article class="card demo-card">
-        <h2>Moda</h2>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead class="header-moda"><tr><th>Produto</th><th>Tamanho</th><th>Valor</th></tr></thead>
-            <tbody>
-              <tr><td>Camiseta</td><td>M</td><td>R$&nbsp;49,00</td></tr>
-              <tr><td>Tênis</td><td>42</td><td>R$&nbsp;299,00</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
-    </section>
-
-    <section class="panel" id="panel-casa" hidden>
-      <article class="card demo-card">
-        <h2>Casa</h2>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead class="header-casa"><tr><th>Produto</th><th>Valor</th></tr></thead>
-            <tbody>
-              <tr><td>Sofá</td><td>R$&nbsp;1.200,00</td></tr>
-              <tr><td>Televisão</td><td>R$&nbsp;5.000,00</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
-    </section>
-
     <footer class="footer">
-      <span>Seed de exemplo anonimizado · edite e salve no navegador</span>
+      <span>Seed de exemplo · sem salário real no Git público</span>
       <a href="https://github.com/DenisPaulo/aula-tabela">Repositório</a>
     </footer>
   </div>
