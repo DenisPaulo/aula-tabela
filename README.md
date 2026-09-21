@@ -10,6 +10,14 @@ Controle de **fluxo de caixa mensal** + **simulação de RDB** em juros composto
 Nasceu como exercício de tabela HTML e evoluiu para fluxo de caixa + simulação de RDB.
 
 
+## Resultado
+
+Resumo com recibo Entrou / Gastou / Guardou / Sobrou + simulação de RDB (juros compostos, meta de R$ 1.000/mês e IR opcional).
+
+![Resumo](docs/resumo.jpg)
+
+![Investimento](docs/investimento.jpg)
+
 **Demo:** [denispaulo.github.io/aula-tabela](https://denispaulo.github.io/aula-tabela/)
 
 ## Problema
